@@ -1,15 +1,10 @@
 # Employee_Tracker
 Module 12
 
-## Video Link
-[Link]( )
-
-
 
 ## Table of Contents
   * [User Story](#user-story)
   * [Installation](#installation)
-  * [Usage](#usage)
   * [Walkthrough Video](#walkthrough-video)
   * [Questions](#questions)  
 
@@ -42,18 +37,12 @@ So that I can organize and plan my business
     ```
 
 
-## Usage
-A command-line application allows the user to:
-- Add departments, roles, employees
-- View departments, roles, employees
-- Update employee roles
 
 ## Walkthrough Video
-[Employee-tracker Video](https://drive.google.com/file/d/13-W0JR66L-iWg3sKLRTnxpY3WeaFNvft/view)
+[Video Link]( )
 
 ## Questions
-If you have any questions, you can find [my Github](https://github.com/PennyLIU2022) and reach me by email at: pennyliu@gmail.com
+If you have any questions, you can find [my Github](https://github.com/gtotaku-tg), or reach me by email at: gtotaku@live.com
 
-## Questions
-If you have encounter any issues or have any Questions  Regarding this Repo. Please send your questions [here](mailto:rohitnayyar54@gmail.com?subject=[GitHub]%20Dev%20Connect) or visit [github/rohitwho](https://github.com/rohitwho).
+
 
