@@ -40,7 +40,7 @@ So that I can organize and plan my business
 
 
 ## Walkthrough Video
-[Video Link]( )
+[Video Link](https://watch.screencastify.com/v/1C2olxwpCSoY6BLKlYIP)
 
 ## Questions
 If you have any questions, you can find [my Github](https://github.com/gtotaku-tg), or reach me by email at: gtotaku@live.com
