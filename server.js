@@ -7,14 +7,14 @@ const db = require("./connection");
 
 
 
-db.connect(function (err) {
-    if (err) throw err;
-    console.log("Connected to db!");
-    start();
-});
+// db.connect(err =>{
+//     if (err) throw err;
+//     console.log("Connected to db!");
+//     start();
+// });
 
 
-function start() {
+async function start() {
     inquirer.prompt([
         {
             type: "list",
@@ -62,6 +62,28 @@ function start() {
             case "Update an employee role":
                 updateRole();
                 break;
+                //=----------------
+            case "View all employees by manager":
+                viewEmployeesByManager();
+                break;
+            case "View all employees by department":
+                viewEmployeesByDepartment();
+                break;
+            case "Update an employee manager":
+                updateManager();
+                break;
+            case "Delete a department":
+                deleteDepartment();
+                break;
+            case "Delete a role":
+                deleteRole();
+                break;
+            case "Delete an employee":
+                deleteEmployee();
+                break;
+            case "View the total utilized budget of a department":
+                viewBudget();
+                break;
             case "Exit":
                 db.end();
                 break;
@@ -89,18 +111,8 @@ function viewRoles() {
 
 // View all employees
 function viewEmployees() {
-    db.query(`SELECT employee.id,
-    employee.first_name,
-    employee.last_name,
-    role.title AS role,
-    department.department_name,
-    role.salary,
-    CONCAT(manager.first_name, ' ' ,manager.last_name) AS manager
-    FROM employee
-    LEFT JOIN role ON employee.role_id = role.id
-    LEFT JOIN department ON role.department_id = department.id
-    LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
-    `, function (err, res) {
+    db.query(`SELECT * FROM employee`, 
+    function (err, res) {
         if (err) throw err;
         console.table(res);
         start();
@@ -229,5 +241,190 @@ function updateRole() {
         })
     })
 }
+
+//"Update an employee manager"
+function updateManager() {
+    db.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        const employee = res.map(employee => ({ name: employee.first_name + " " + employee.last_name, value: employee.id }));
+        db.query("SELECT * FROM employee", function (err, res) {
+            if (err) throw err;
+            const manager = res.map(manager => ({ name: manager.first_name + " " + manager.last_name, value: manager.id }));
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "employee",
+                    message: "Which employee's manager do you want to update?",
+                    choices: employee
+                },
+                {
+                    type: "list",
+                    name: "manager",
+                    message: "Who is the employee's new manager?",
+                    choices: manager
+                }
+            ]).then(res => {
+                db.query("UPDATE employee SET manager_id = ? WHERE id = ?", [res.manager, res.employee], function (err, res) {
+                    if (err) throw err;
+                    console.log("Employee manager updated");
+                    start();
+                })
+            })
+        })
+    })
+}
+
+// "View all employees by department",
+function viewEmployeesByDepartment() {
+    db.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
+        const department = res.map(department => ({ name: department.name, value: department.id }));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "department",
+                message: "Which department's employees do you want to view?",
+                choices: department
+            }
+        ]).then(res => {
+            db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, " ", manager.last_name) AS manager
+            FROM employee
+            LEFT JOIN role ON employee.role_id = role.id
+            LEFT JOIN department ON role.department_id = department.id
+            LEFT JOIN employee manager ON manager.id = employee.manager_id
+            WHERE department.id = ?`, res.department, function (err, res) {
+                if (err) throw err;
+                console.table(res);
+                start();
+            })
+        })
+    })
+}
+
+// "View all employees by manager"
+
+function viewEmployeesByManager() {
+    db.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        const manager = res.map(manager => ({ name: manager.first_name + " " + manager.last_name, value: manager.id }));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "manager",
+                message: "Which manager's employees do you want to view?",
+                choices: manager
+            }
+        ]).then(res => {
+            db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, " ", manager.last_name) AS manager
+            FROM employee
+            LEFT JOIN role ON employee.role_id = role.id
+            LEFT JOIN department ON role.department_id = department.id
+            LEFT JOIN employee manager ON manager.id = employee.manager_id
+            WHERE manager.id = ?`, res.manager, function (err, res) {
+                if (err) throw err;
+                console.table(res);
+                start();
+            })
+        })
+    })
+}
+
+// "Delete a department",
+
+function deleteDepartment() {
+    db.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
+        const department = res.map(department => ({ name: department.name, value: department.id }));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "department",
+                message: "Which department do you want to delete?",
+                choices: department
+            }
+        ]).then(res => {
+            db.query("DELETE FROM department WHERE id = ?", res.department, function (err, res) {
+                if (err) throw err;
+                console.log("Department deleted");
+                start();
+            })
+        })
+    })
+}
+
+// "Delete a role",
+
+function deleteRole() {
+    db.query("SELECT * FROM role", function (err, res) {
+        if (err) throw err;
+        const role = res.map(role => ({ name: role.title, value: role.id }));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "role",
+                message: "Which role do you want to delete?",
+                choices: role
+            }
+        ]).then(res => {
+            db.query("DELETE FROM role WHERE id = ?", res.role, function (err, res) {
+                if (err) throw err;
+                console.log("Role deleted");
+                start();
+            })
+        })
+    })
+}
+
+// "Delete an employee",
+
+function deleteEmployee() {
+    db.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        const employee = res.map(employee => ({ name: employee.first_name + " " + employee.last_name, value: employee.id }));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "employee",
+                message: "Which employee do you want to delete?",
+                choices: employee
+            }
+        ]).then(res => {
+            db.query("DELETE FROM employee WHERE id = ?", res.employee, function (err, res) {
+                if (err) throw err;
+                console.log("Employee deleted");
+                start();
+            })
+        })
+    })
+}
+
+// "View the total utilized budget of a department",
+
+function viewBudget() {
+    db.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
+        const department = res.map(department => ({ name: department.name, value: department.id }));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "department",
+                message: "Which department's budget do you want to view?",
+                choices: department
+            }
+        ]).then(res => {
+            db.query(`SELECT department.name AS department, SUM(role.salary) AS budget
+            FROM employee
+            LEFT JOIN role ON employee.role_id = role.id
+            LEFT JOIN department ON role.department_id = department.id
+            WHERE department.id = ?`, res.department, function (err, res) {
+                if (err) throw err;
+                console.table(res);
+                start();
+            })
+        })
+    })
+}
+
+
 
 start();

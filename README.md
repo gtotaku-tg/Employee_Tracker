@@ -23,6 +23,7 @@ So that I can organize and plan my business
     ```
 - Create schema of database tables by running all the sql queries in ```db``` folder.
     ```
+    mysql -u root -p
     source db/db.sql
     source db/schema.sql
     source db/seeds.sql
